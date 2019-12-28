@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strings"
 
-	"simplejwt/algorithms"
+	"github.com/crossedbot/simplejwt/algorithms"
 )
 
 var (
