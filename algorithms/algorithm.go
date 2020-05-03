@@ -29,7 +29,7 @@ type algorithm struct {
 
 func pemBlock(key []byte) []byte {
 	block := new(pem.Block)
-	if block, _ = pem.Decode([]byte(key)); block == nil {
+	if block, _ = pem.Decode(key); block == nil {
 		return nil
 	}
 	return block.Bytes
