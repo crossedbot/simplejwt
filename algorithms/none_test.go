@@ -21,9 +21,9 @@ func TestNoneValid(t *testing.T) {
 	err := AlgorithmNone.Valid(data, []byte{}, []byte{})
 	require.Nil(t, err)
 	err = AlgorithmNone.Valid(data, []byte("signature"), []byte{})
-	require.Equal(t, ErrNoneKey, err)
-	err = AlgorithmNone.Valid(data, []byte{}, []byte{})
 	require.Equal(t, ErrSignatureLength, err)
+	err = AlgorithmNone.Valid(data, []byte{}, []byte{0x01, 0x02, 0x03, 0x04})
+	require.Equal(t, ErrNoneKey, err)
 }
 
 func TestNoneName(t *testing.T) {

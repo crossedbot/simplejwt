@@ -26,17 +26,17 @@ type ecdsaAlg struct {
 
 // List of ECDSA algorithms.
 var (
-	AlgorithmES256 = &ecdsaAlg{
+	AlgorithmEC256 = &ecdsaAlg{
 		algorithm: algorithm{name: ECDSA_SHA256, hash: crypto.SHA256},
 		keysz:     EC256_KEYSZ,
 		curve:     elliptic.P256(),
 	}
-	AlgorithmES384 = &ecdsaAlg{
+	AlgorithmEC384 = &ecdsaAlg{
 		algorithm: algorithm{name: ECDSA_SHA384, hash: crypto.SHA384},
 		keysz:     EC348_KEYSZ,
 		curve:     elliptic.P384(),
 	}
-	AlgorithmES512 = &ecdsaAlg{
+	AlgorithmEC512 = &ecdsaAlg{
 		algorithm: algorithm{name: ECDSA_SHA512, hash: crypto.SHA512},
 		keysz:     EC512_KEYSZ,
 		curve:     elliptic.P521(),
@@ -70,6 +70,9 @@ func (e ecdsaAlg) Sign(data string, key []byte) ([]byte, error) {
 // public key. Otherwise an error is returned. The key is assumed to be PEM
 // encoded.
 func (e ecdsaAlg) Valid(data string, signature, key []byte) error {
+	if len(signature) != 2*e.keysz {
+		return ErrSignatureLength
+	}
 	publicKey, err := e.PublicKey(key)
 	if err != nil {
 		return err
