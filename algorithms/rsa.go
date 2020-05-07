@@ -74,6 +74,9 @@ func (r rsaAlg) PublicKey(key []byte) (*rsa.PublicKey, error) {
 	der := pemBlock(key)
 	p, err := x509.ParsePKIXPublicKey(der)
 	if err != nil {
+		if k, err := x509.ParsePKCS1PublicKey(der); err == nil {
+			return k, nil
+		}
 		if c, err := x509.ParseCertificate(der); err != nil {
 			return nil, err
 		} else {
