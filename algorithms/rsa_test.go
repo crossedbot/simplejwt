@@ -306,7 +306,7 @@ func TestRS512PublicKey(t *testing.T) {
 }
 
 func TestRSAPublicKey(t *testing.T) {
-	TestRS256PrivateKey(t)
-	TestRS384PrivateKey(t)
-	TestRS512PrivateKey(t)
+	TestRS256PublicKey(t)
+	TestRS384PublicKey(t)
+	TestRS512PublicKey(t)
 }
