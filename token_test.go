@@ -174,7 +174,37 @@ func TestTokenValid(t *testing.T) {
 	require.Nil(t, err)
 }
 
-func TestBase64urlEncodeJSON(t *testing.T) {
+func TestBase64urlEncode(t *testing.T) {
+	b := []byte("test string")
+	expected := base64.URLEncoding.EncodeToString(b)
+	actual := base64urlEncode(b)
+	require.Equal(t, expected, actual)
+}
+
+func TestBase64urlDecode(t *testing.T) {
+	expected := []byte("test string")
+	encStr := base64.URLEncoding.EncodeToString(expected)
+	actual, err := base64urlDecode(encStr)
+	require.Nil(t, err)
+	require.Equal(t, expected, actual)
+}
+
+func TestEncode(t *testing.T) {
+	b := []byte("test string")
+	expected := "dGVzdCBzdHJpbmc"
+	actual := encode(b)
+	require.Equal(t, expected, actual)
+}
+
+func TestDecode(t *testing.T) {
+	enc := "dGVzdCBzdHJpbmc="
+	expected := []byte("test string")
+	actual, err := decode(enc)
+	require.Nil(t, err)
+	require.Equal(t, expected, actual)
+}
+
+func TestEncodeJSON(t *testing.T) {
 	type V struct {
 		I   int    `json:"i"`
 		Str string `json:"str"`
@@ -189,7 +219,7 @@ func TestBase64urlEncodeJSON(t *testing.T) {
 	require.Equal(t, expected, actual)
 }
 
-func TestBase64urlDecodeJSON(t *testing.T) {
+func TestDecodeJSON(t *testing.T) {
 	type V struct {
 		I   int    `json:"i"`
 		Str string `json:"str"`
@@ -203,19 +233,4 @@ func TestBase64urlDecodeJSON(t *testing.T) {
 	err = decodeJSON(enc, &v)
 	require.Nil(t, err)
 	require.Equal(t, data, v)
-}
-
-func TestBase64urlEncode(t *testing.T) {
-	b := []byte("test string")
-	expected := base64.URLEncoding.EncodeToString(b)
-	actual := base64urlEncode(b)
-	require.Equal(t, expected, actual)
-}
-
-func TestBase64urlDecode(t *testing.T) {
-	expected := []byte("test string")
-	encStr := base64.URLEncoding.EncodeToString(expected)
-	actual, err := base64urlDecode(encStr)
-	require.Nil(t, err)
-	require.Equal(t, expected, actual)
 }

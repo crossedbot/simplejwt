@@ -164,8 +164,9 @@ func encode(v []byte) string {
 // decode decodes the given string; assuming it is a base64 URL encoded string
 // without padding.
 func decode(s string) ([]byte, error) {
-	if padding := len(s) % 4; padding > 0 {
-		s += strings.Repeat("=", 4-padding)
+	if l := len(s) % 4; l > 0 {
+		padding := strings.Repeat("=", 4-l)
+		s = fmt.Sprintf("%s%s", s, padding)
 	}
 	return base64urlDecode(s)
 }
