@@ -197,7 +197,7 @@ func TestEncode(t *testing.T) {
 }
 
 func TestDecode(t *testing.T) {
-	enc := "dGVzdCBzdHJpbmc="
+	enc := "dGVzdCBzdHJpbmc"
 	expected := []byte("test string")
 	actual, err := decode(enc)
 	require.Nil(t, err)
