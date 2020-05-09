@@ -42,19 +42,19 @@ func New(claims Claims, alg algorithms.SigningAlgorithm) *Token {
 func Parse(tokenStr string) (*Token, error) {
 	t := new(Token)
 	parts := strings.Split(tokenStr, ".")
-	if len(parts) > 1 {
+	if len(parts) < 2 {
 		return nil, ErrInvalidTokenString
 	}
-	if err := base64urlDecodeJSON(parts[0], &t.Header); err != nil {
+	if err := decodeJSON(parts[0], &t.Header); err != nil {
 		return nil, err
 	}
 	var claims CustomClaims
-	if err := base64urlDecodeJSON(parts[1], &claims); err != nil {
+	if err := decodeJSON(parts[1], &claims); err != nil {
 		return nil, err
 	}
 	t.Claims = claims
 	if algName, ok := t.Header["alg"].(string); ok {
-		if alg, err := GetSigningAlgorithm(algName); err == nil {
+		if alg, err := GetSigningAlgorithm(algName); err != nil {
 			return nil, err
 		} else {
 			t.Algorithm = alg
@@ -71,11 +71,11 @@ func Parse(tokenStr string) (*Token, error) {
 // SigningString returns the base64 encoded string for generating the signature
 // of the JWT.
 func (t *Token) SigningString() (string, error) {
-	encHdr, err := base64urlEncodeJSON(t.Header)
+	encHdr, err := encodeJSON(t.Header)
 	if err != nil {
 		return "", fmt.Errorf("failed to encode header: %s", err)
 	}
-	encClaims, err := base64urlEncodeJSON(t.Claims)
+	encClaims, err := encodeJSON(t.Claims)
 	if err != nil {
 		return "", fmt.Errorf("failed to encode claims: %s", err)
 	}
@@ -92,18 +92,22 @@ func (t *Token) Sign(key []byte) error {
 	if err != nil {
 		return err
 	}
-	t.Signature = base64urlEncode(sig)
+	t.Signature = encode(sig)
 	return nil
 }
 
 // Valid returns nil if the token is valid using the given key. Otherwise, an
 // error is returned.
 func (t *Token) Valid(key []byte) error {
-	data, err := json.Marshal(t.Claims)
+	ss, err := t.SigningString()
 	if err != nil {
 		return err
 	}
-	return t.Algorithm.Valid(string(data), []byte(t.Signature), key)
+	sig, err := decode(t.Signature)
+	if err != nil {
+		return err
+	}
+	return t.Algorithm.Valid(ss, sig, key)
 }
 
 // GetSigningAlgorithm returns the signing algorithm for the given algorithm
@@ -112,11 +116,11 @@ func GetSigningAlgorithm(name string) (algorithms.SigningAlgorithm, error) {
 	var alg algorithms.SigningAlgorithm
 	switch name {
 	case algorithms.ECDSA_SHA256:
-		alg = algorithms.AlgorithmES256
+		alg = algorithms.AlgorithmEC256
 	case algorithms.ECDSA_SHA384:
-		alg = algorithms.AlgorithmES384
+		alg = algorithms.AlgorithmEC384
 	case algorithms.ECDSA_SHA512:
-		alg = algorithms.AlgorithmES512
+		alg = algorithms.AlgorithmEC512
 	case algorithms.HMAC_SHA256:
 		alg = algorithms.AlgorithmHS256
 	case algorithms.HMAC_SHA384:
@@ -141,24 +145,6 @@ func GetSigningAlgorithm(name string) (algorithms.SigningAlgorithm, error) {
 	return alg, nil
 }
 
-// base64urlEncodeJSON returns the base64 encoded string for given JSON data.
-func base64urlEncodeJSON(data interface{}) (string, error) {
-	v, err := json.Marshal(data)
-	if err != nil {
-		return "", err
-	}
-	return base64urlEncode(v), nil
-}
-
-// base64urlDecodeJSON populates interface, v, using the base64 encode string.
-func base64urlDecodeJSON(s string, v interface{}) error {
-	b, err := base64urlDecode(s)
-	if err != nil {
-		return err
-	}
-	return json.Unmarshal(b, v)
-}
-
 // base64urlEncode returns the base64 encoded string for the given data.
 func base64urlEncode(v []byte) string {
 	return base64.URLEncoding.EncodeToString(v)
@@ -167,4 +153,38 @@ func base64urlEncode(v []byte) string {
 // base64urlDecode returns the bytes for the given base64 encoded string.
 func base64urlDecode(s string) ([]byte, error) {
 	return base64.URLEncoding.DecodeString(s)
+}
+
+// encode encodes the given data as a base64 URL encoded string without the
+// padding.
+func encode(v []byte) string {
+	return strings.TrimRight(base64urlEncode(v), "=")
+}
+
+// decode decodes the given string; assuming it is a base64 URL encoded string
+// without padding.
+func decode(s string) ([]byte, error) {
+	if l := len(s) % 4; l > 0 {
+		padding := strings.Repeat("=", 4-l)
+		s = fmt.Sprintf("%s%s", s, padding)
+	}
+	return base64urlDecode(s)
+}
+
+// encodeJSON returns the base64 encoded string for given JSON data.
+func encodeJSON(data interface{}) (string, error) {
+	v, err := json.Marshal(data)
+	if err != nil {
+		return "", err
+	}
+	return encode(v), nil
+}
+
+// decodeJSON populates interface, v, using the base64 encode string.
+func decodeJSON(s string, v interface{}) error {
+	b, err := decode(s)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(b, v)
 }
