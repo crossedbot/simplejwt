@@ -86,6 +86,8 @@ func validIssuedAt(iat, t int64) bool {
 // a datatype compatible with int64, 0 is returned.
 func i64(i interface{}) int64 {
 	switch v := i.(type) {
+	case int64:
+		return int64(v)
 	case float64:
 		return int64(v)
 	case int:
