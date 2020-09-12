@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/crossedbot/simplejwt/algorithms"
 )
@@ -25,6 +26,7 @@ type JOSEHeader map[string]interface{}
 type Token struct {
 	Header    JOSEHeader
 	Claims    Claims
+	Data      string
 	Signature string
 	Algorithm algorithms.SigningAlgorithm
 }
@@ -62,6 +64,7 @@ func Parse(tokenStr string) (*Token, error) {
 	} else {
 		return nil, ErrAlgMissing
 	}
+	t.Data = strings.Join(parts[:2], ".")
 	if len(parts) > 2 {
 		t.Signature = parts[2]
 	}
@@ -83,31 +86,31 @@ func (t *Token) SigningString() (string, error) {
 }
 
 // Sign returns the signature of the JWT using the given key.
-func (t *Token) Sign(key []byte) error {
-	ss, err := t.SigningString()
+func (t *Token) Sign(key []byte) (string, error) {
+	var err error
+	t.Data, err = t.SigningString()
 	if err != nil {
-		return err
+		return "", err
 	}
-	sig, err := t.Algorithm.Sign(ss, key)
+	sig, err := t.Algorithm.Sign(t.Data, key)
 	if err != nil {
-		return err
+		return "", err
 	}
 	t.Signature = encode(sig)
-	return nil
+	return fmt.Sprintf("%s.%s", t.Data, t.Signature), nil
 }
 
 // Valid returns nil if the token is valid using the given key. Otherwise, an
 // error is returned.
 func (t *Token) Valid(key []byte) error {
-	ss, err := t.SigningString()
-	if err != nil {
+	if err := t.Claims.Valid(time.Now().Unix()); err != nil {
 		return err
 	}
 	sig, err := decode(t.Signature)
 	if err != nil {
 		return err
 	}
-	return t.Algorithm.Valid(ss, sig, key)
+	return t.Algorithm.Valid(t.Data, sig, key)
 }
 
 // GetSigningAlgorithm returns the signing algorithm for the given algorithm
