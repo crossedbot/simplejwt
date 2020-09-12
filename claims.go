@@ -74,12 +74,12 @@ func validExpirationTime(exp, t int64) bool {
 
 // validNotBefore returns true if the not before datetime is valid or zero.
 func validNotBefore(nbf, t int64) bool {
-	return 0 == nbf || t <= nbf
+	return 0 == nbf || t >= nbf
 }
 
 // validIssuedAt returns true if the issued at datetime is valid or zero.
 func validIssuedAt(iat, t int64) bool {
-	return 0 == iat || t <= iat
+	return 0 == iat || t >= iat
 }
 
 // i64 returns the int64 representation of interface i. If the interface is not

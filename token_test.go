@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/crossedbot/simplejwt/algorithms"
 
@@ -63,11 +64,12 @@ func TestParse(t *testing.T) {
 		IssuedAt:       1588473060,
 	}
 	token := New(claims, algorithms.AlgorithmRS256)
-	err := token.Sign([]byte(testPrivateKey))
+	_, err := token.Sign([]byte(testPrivateKey))
 	require.Nil(t, err)
 	jwt := "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpc3N1ZXIiLCJzdWIiOiJzdWJqZWN0IiwiYXVkIjoiYXVkaWVuY2UiLCJleHAiOjE1ODg3MzIyMDAsIm5iZiI6MTU4ODQ3MzA2MCwiaWF0IjoxNTg4NDczMDYwfQ.swBeSSjVDu1o_qQELCQcYlHE-te0BxAKCAH1GPwBHRc3ko_RJtcklbR5cYIXdtH-xGPkYuU36KQgjH7wBJkRwbc-wfKPiWM_WwkdMU42GXP6L1IIhn2K43_Rx0mB_hwbSlemQYZkSe-h589CpSqQZJTwYhEznJJYXe9Ymd_1n8deZHOE8qst_0eJ_oGGyUE1_Dr6FzjsLIuK7KVVyuzfQeePVZHfsKRTw_CqxV8yIA7y5g7_q_dlD0pF_fGNpOB3_qEK31wStLi9Pzna93cALOkS07xclswyNsOwX-2YqxfACGyZIsyyUU_L-DvYAhDxQw5y3CBbtX7JVzoeSOQAhQ"
 	actual, err := Parse(jwt)
 	require.Nil(t, err)
+	require.Equal(t, token.Data, actual.Data)
 	require.Equal(t, token.Signature, actual.Signature)
 }
 
@@ -153,7 +155,7 @@ func TestTokenSign(t *testing.T) {
 		IssuedAt:       1588473060,
 	}
 	token := New(claims, algorithms.AlgorithmRS256)
-	err := token.Sign([]byte(testPrivateKey))
+	_, err := token.Sign([]byte(testPrivateKey))
 	require.Nil(t, err)
 	require.Equal(t, sig, token.Signature)
 }
@@ -163,12 +165,12 @@ func TestTokenValid(t *testing.T) {
 		Issuer:         "issuer",
 		Subject:        "subject",
 		Audience:       "audience",
-		ExpirationTime: 1588732200,
-		NotBefore:      1588473060,
-		IssuedAt:       1588473060,
+		ExpirationTime: time.Now().Add(1 * time.Hour).Unix(),
+		NotBefore:      time.Now().Add(-1 * time.Hour).Unix(),
+		IssuedAt:       time.Now().Unix(),
 	}
 	token := New(claims, algorithms.AlgorithmRS256)
-	err := token.Sign([]byte(testPrivateKey))
+	_, err := token.Sign([]byte(testPrivateKey))
 	require.Nil(t, err)
 	err = token.Valid([]byte(testPublicKey))
 	require.Nil(t, err)
