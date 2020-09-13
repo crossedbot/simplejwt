@@ -14,6 +14,7 @@ var (
 // Claims represents the a claims set.
 type Claims interface {
 	Valid(int64) error
+	Get(key string) interface{}
 }
 
 // CustomClaims represents a custom claims set.
@@ -38,6 +39,13 @@ func (cc CustomClaims) Valid(t int64) error {
 		}
 	}
 	return nil
+}
+
+func (cc CustomClaims) Get(key string) (value interface{}) {
+	if cc != nil {
+		value = cc[key]
+	}
+	return
 }
 
 // RegisteredClaims implements a claims set using the registered (standard)
@@ -65,6 +73,26 @@ func (rc RegisteredClaims) Valid(t int64) error {
 		return ErrInvalidIssuedAt
 	}
 	return nil
+}
+
+func (rc RegisteredClaims) Get(key string) (value interface{}) {
+	switch key {
+	case "iss":
+		value = rc.Issuer
+	case "sub":
+		value = rc.Subject
+	case "aud":
+		value = rc.Audience
+	case "exp":
+		value = rc.ExpirationTime
+	case "nbf":
+		value = rc.NotBefore
+	case "iat":
+		value = rc.IssuedAt
+	case "jti":
+		value = rc.JWTID
+	}
+	return
 }
 
 // validExpirationTime returns true if the expiration time is valid or zero.
