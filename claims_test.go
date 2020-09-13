@@ -79,6 +79,18 @@ func TestCustomClaimsValid(t *testing.T) {
 	require.Nil(t, cc.Valid(now))
 }
 
+func TestCustomClaimsGet(t *testing.T) {
+	cc := make(CustomClaims)
+	key := "test"
+	anotherKey := "bad"
+	expected := "value"
+	cc[key] = expected
+	actual, ok := cc.Get(key).(string)
+	require.True(t, ok)
+	require.Equal(t, expected, actual)
+	require.True(t, cc.Get(anotherKey) == nil)
+}
+
 func TestRegisteredClaimsValid(t *testing.T) {
 	now := int64(1596844800) // 08/08/2020 @ 12:00am (UTC)
 	rc := RegisteredClaims{}
@@ -102,4 +114,15 @@ func TestRegisteredClaimsValid(t *testing.T) {
 	rc.NotBefore = int64(1596758400)      // 08/07/2020 @ 12:00am (UTC)
 	rc.IssuedAt = int64(1596758400)       // 08/07/2020 @ 12:00am (UTC)
 	require.Nil(t, rc.Valid(now))
+}
+
+func TestRegisteredClaimsGet(t *testing.T) {
+	iss := "auth.example.com"
+	rc := RegisteredClaims{Issuer: iss}
+	key := "iss"
+	anotherKey := "bad"
+	actual, ok := rc.Get(key).(string)
+	require.True(t, ok)
+	require.Equal(t, iss, actual)
+	require.True(t, rc.Get(anotherKey) == nil)
 }
