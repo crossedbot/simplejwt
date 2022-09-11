@@ -76,8 +76,8 @@ func (cert Certificate) ToJwk() (Jwk, error) {
 		return Jwk{}, err
 	}
 	return Jwk{
-		Alg: "RSA256",
-		KTy: "RSA",
+		Alg: cert.Alg(),
+		KTy: cert.KTy(),
 		KID: kid,
 		Use: "sig",
 		N:   cert.N(),
@@ -137,6 +137,16 @@ func (cert Certificate) X5T() (string, error) {
 	h.Write(cert.certificate.Raw)
 	sum := h.Sum(nil)
 	return EncodeToString(sum[:]), nil
+}
+
+// Alg returns the cryptographic version of the certificate; E.g. SHA256-RSA.
+func (cert Certificate) Alg() string {
+	return cert.certificate.SignatureAlgorithm.String()
+}
+
+// KTy returns the cryptographic algorithm of the certifciate; E.g. RSA.
+func (cert Certificate) KTy() string {
+	return cert.certificate.PublicKeyAlgorithm.String()
 }
 
 // PublicKey returns the Certificate's RSA public key in PEM format
