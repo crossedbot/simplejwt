@@ -76,8 +76,8 @@ func (cert Certificate) ToJwk() (Jwk, error) {
 		return Jwk{}, err
 	}
 	return Jwk{
-		Alg: "RSA256",
-		KTy: "RSA",
+		Alg: cert.certificate.SignatureAlgorithm.String(),
+		KTy: cert.certificate.PublicKeyAlgorithm.String(),
 		KID: kid,
 		Use: "sig",
 		N:   cert.N(),
