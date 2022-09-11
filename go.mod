@@ -3,7 +3,7 @@ module github.com/crossedbot/simplejwt
 go 1.19
 
 require (
-	github.com/crossedbot/common v0.0.0-20211227060111-08af6a662d96
+	github.com/crossedbot/common v0.0.0-20220911035328-a84c7bdd9808
 	github.com/stretchr/testify v1.8.0
 )
 

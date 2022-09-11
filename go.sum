@@ -1,5 +1,5 @@
-github.com/crossedbot/common v0.0.0-20211227060111-08af6a662d96 h1:ufusgqldTJ5+lgQu3HJBAOrqDKb5cxzuAu9XntsG9tQ=
-github.com/crossedbot/common v0.0.0-20211227060111-08af6a662d96/go.mod h1:QnY2Zn4qa32YKy4mrCcZWXjFHVclh+CXLux2etHkmjo=
+github.com/crossedbot/common v0.0.0-20220911035328-a84c7bdd9808 h1:f/W+rKJp80JyKk7iKuOeXHhc1DxPfS5VZ8+E6knpA8g=
+github.com/crossedbot/common v0.0.0-20220911035328-a84c7bdd9808/go.mod h1:KRIksGVfuJ4ohhFHy/2K+ExrO/0+uROI5UKGC4molMU=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
